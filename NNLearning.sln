@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30128.74
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NNLearning", "NNLearning\NNLearning.vcxproj", "{10EE90F0-D10C-45A6-BACA-2FD225D2D45B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{10EE90F0-D10C-45A6-BACA-2FD225D2D45B}.Debug|x64.ActiveCfg = Debug|x64
+		{10EE90F0-D10C-45A6-BACA-2FD225D2D45B}.Debug|x64.Build.0 = Debug|x64
+		{10EE90F0-D10C-45A6-BACA-2FD225D2D45B}.Debug|x86.ActiveCfg = Debug|x64
+		{10EE90F0-D10C-45A6-BACA-2FD225D2D45B}.Debug|x86.Build.0 = Debug|x64
+		{10EE90F0-D10C-45A6-BACA-2FD225D2D45B}.Release|x64.ActiveCfg = Release|x64
+		{10EE90F0-D10C-45A6-BACA-2FD225D2D45B}.Release|x64.Build.0 = Release|x64
+		{10EE90F0-D10C-45A6-BACA-2FD225D2D45B}.Release|x86.ActiveCfg = Release|Win32
+		{10EE90F0-D10C-45A6-BACA-2FD225D2D45B}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {16D1619E-3BC1-44C3-BCF5-5E56D982F56B}
+	EndGlobalSection
+EndGlobal
