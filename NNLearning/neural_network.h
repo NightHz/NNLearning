@@ -27,6 +27,7 @@ public:
 	NeuralNetwork(const NeuralNetwork&) = delete;
 	NeuralNetwork& operator=(const NeuralNetwork&) = delete;
 
+	// basic operate
 	void set_in(vector<double> in)
 	{
 		if (in.size() != in_layer->neurons.size())
@@ -68,6 +69,7 @@ public:
 			}
 	}
 
+	// user operate for one sample
 	vector<double> test(vector<double> in)
 	{
 		set_in(in);
@@ -100,17 +102,38 @@ public:
 			for (size_t j = 0; j < layers[i].neurons.size(); j++)
 				layers[i].neurons[j].apply_new_w(rate);
 	}
-	void training(double learning_rate, vector<vector<double>> ins, vector<vector<double>> correct_outs, bool accumulate = false)
+
+	// user operate for dataset
+	double sum_error(vector<vector<double>> ins, vector<vector<double>> correct_outs)
+	{
+		if (ins.size() != correct_outs.size())
+			throw std::invalid_argument("size(input of dateset) != size(output of dataset)");
+		double error = 0;
+		for (size_t i = 0; i < ins.size(); i++)
+			error += test_error(ins[i], correct_outs[i]);
+		return error;
+	}
+	void training(double learning_rate, vector<vector<double>> ins, vector<vector<double>> correct_outs)
 	{
 		if (ins.size() != correct_outs.size())
 			throw std::invalid_argument("size(input of dateset) != size(output of dataset)");
 		for (size_t i = 0; i < ins.size(); i++)
 		{
 			learning(learning_rate, ins[i], correct_outs[i]);
-			if (!accumulate)
-				apply_learning();
-		}
-		if (accumulate)
 			apply_learning();
+		}
+	}
+	double training_accumulate(double learning_rate, vector<vector<double>> ins, vector<vector<double>> correct_outs)
+	{
+		if (ins.size() != correct_outs.size())
+			throw std::invalid_argument("size(input of dateset) != size(output of dataset)");
+		double error = 0;
+		for (size_t i = 0; i < ins.size(); i++)
+		{
+			error += test_error(ins[i], correct_outs[i]);
+			bp(learning_rate, correct_outs[i]);
+		}
+		apply_learning();
+		return error;
 	}
 };

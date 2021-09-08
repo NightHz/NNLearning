@@ -31,19 +31,9 @@ int main()
 	cout << "learning..." << endl;
 	for (int i = 0; i < 10000; i++) // loop
 	{
-		double error = 0;
-		for (double in = 0; in < 10; in += 0.1) // 100 points
-		{
-			double out = std::sin(in);
-			error += nn.test_error(vector<double>{in}, vector<double>{out});
-		}
-		cout << "current sum error : " << error << endl;
-		for (double in = 0; in < 10; in += 0.1) // 100 points
-		{
-			double out = std::sin(in);
-			nn.learning(0.03, vector<double>{in}, vector<double>{out});
-			nn.apply_learning();
-		}
+		cout << "current data error : " << nn.sum_error(data_ins, data_outs) << "\t";
+		cout << "current test error : " << nn.sum_error(test_ins, test_outs) << endl;
+		nn.training(0.03, data_ins, data_outs);
 	}
 	cout << "testing..." << endl;
 	fout << "test in  \t| out(correct out)" << endl;
