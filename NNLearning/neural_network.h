@@ -47,7 +47,7 @@ public:
 			out.push_back(out_layer->neurons[i].out);
 		return out;
 	}
-	void bp(double learning_velocity, vector<double> correct_out)
+	void bp(double learning_rate, vector<double> correct_out)
 	{
 		if (correct_out.size() != out_layer->neurons.size())
 			throw std::invalid_argument("size(output number) != size(output neurons)");
@@ -55,7 +55,7 @@ public:
 		{
 			double diff_error_out = out_layer->neurons[i].out - correct_out[i];
 			out_layer->neurons[i].update_diff(diff_error_out);
-			out_layer->neurons[i].bp(learning_velocity);
+			out_layer->neurons[i].bp(learning_rate);
 		}
 		for (size_t i = layers.size() - 2; i >= 1; i--)
 			for (size_t j = 0; j < layers[i].neurons.size(); j++)
@@ -64,8 +64,15 @@ public:
 				for (size_t k = 0; k < layers[i + 1].neurons.size(); k++)
 					diff_error_out += layers[i + 1].neurons[k].diff_error_in[j];
 				layers[i].neurons[j].update_diff(diff_error_out);
-				layers[i].neurons[j].bp(learning_velocity);
+				layers[i].neurons[j].bp(learning_rate);
 			}
+	}
+
+	vector<double> test(vector<double> in)
+	{
+		set_in(in);
+		update_out();
+		return get_out();
 	}
 	double test_error(vector<double> in, vector<double> correct_out)
 	{
@@ -77,24 +84,29 @@ public:
 		for (size_t i = 0; i < correct_out.size(); i++)
 		{
 			double offset = correct_out[i] - out_layer->neurons[i].out;
-			error = offset * offset;
+			error = offset * offset / 2;
 		}
 		return error;
 	}
-	void learning(double learning_velocity, vector<double> in, vector<double> correct_out)
+	void learning(double learning_rate, vector<double> in, vector<double> correct_out)
 	{
 		set_in(in);
 		update_out();
-		bp(learning_velocity, correct_out);
+		bp(learning_rate, correct_out);
 	}
-	void apply_learning();
-	void training(double learning_velocity, vector<vector<double>> ins, vector<vector<double>> correct_outs, bool accumulate = false)
+	void apply_learning(double rate=1.0)
+	{
+		for (size_t i = 1; i < layers.size(); i++)
+			for (size_t j = 0; j < layers[i].neurons.size(); j++)
+				layers[i].neurons[j].apply_new_w(rate);
+	}
+	void training(double learning_rate, vector<vector<double>> ins, vector<vector<double>> correct_outs, bool accumulate = false)
 	{
 		if (ins.size() != correct_outs.size())
 			throw std::invalid_argument("size(input of dateset) != size(output of dataset)");
 		for (size_t i = 0; i < ins.size(); i++)
 		{
-			learning(learning_velocity, ins[i], correct_outs[i]);
+			learning(learning_rate, ins[i], correct_outs[i]);
 			if (!accumulate)
 				apply_learning();
 		}

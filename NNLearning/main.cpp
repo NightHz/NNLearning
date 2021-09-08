@@ -1,80 +1,59 @@
 #include <iostream>
+#include <fstream>
 #include "neural_network.h"
 
 using std::cin;
 using std::cout;
 using std::endl;
 
-vector<double> encode(double x)
-{
-	vector<double> vd;
-	if (x < 0)
-	{
-		vd.push_back(1.0);
-		x = -x;
-	}
-	else
-		vd.push_back(0.0);
-	double b = 5.0;
-	for (int i = 0; i < 10; i++)
-	{
-		if (x >= b)
-		{
-			vd.push_back(1.0);
-			x -= b;
-		}
-		else
-			vd.push_back(0.0);
-		b /= 2.0;
-	}
-	return vd;
-}
-double decode(vector<double> vd)
-{
-	double d = 0;
-	double b = 5.0;
-	for (size_t i = 0; i < 10; i++)
-	{
-		if (vd[i + 1] >= 0.5)
-			d += b;
-		b /= 2.0;
-	}
-	if (vd[0] >= 0.5)
-		d = -d;
-	return d;
-}
-
 int main()
 {
+	std::ofstream fout;
+	fout.open("out.txt");
+
+	cout << "build dateset and testset..." << endl;
+	vector<vector<double>> data_ins, data_outs, test_ins, test_outs;
+	for (double in = 0; in < 10; in += 0.1) // 100 points
+	{
+		double out = std::sin(in);
+		data_ins.push_back(vector<double>{in});
+		data_outs.push_back(vector<double>{out});
+	}
+	for (double in = 0.05; in < 10; in += 0.1) // 100 points
+	{
+		double out = std::sin(in);
+		test_ins.push_back(vector<double>{in});
+		test_outs.push_back(vector<double>{out});
+	}
+
 	cout << "NN..." << endl;
-	NeuralNetwork nn{ 11,50,11 };
+	NeuralNetwork nn{ 1,8,8,1 };
 	cout << "learning..." << endl;
-	for (int i = 0; i < 100; i++) // loop
+	for (int i = 0; i < 10000; i++) // loop
 	{
 		double error = 0;
 		for (double in = 0; in < 10; in += 0.1) // 100 points
 		{
 			double out = std::sin(in);
-			error += nn.test_error(encode(in), encode(out));
+			error += nn.test_error(vector<double>{in}, vector<double>{out});
 		}
 		cout << "current sum error : " << error << endl;
 		for (double in = 0; in < 10; in += 0.1) // 100 points
 		{
 			double out = std::sin(in);
-			//cout << "learning " << in << " \t| " << out << endl;
-			nn.learning(0.2, encode(in), encode(out));
+			nn.learning(0.03, vector<double>{in}, vector<double>{out});
+			nn.apply_learning();
 		}
 	}
 	cout << "testing..." << endl;
-	cout << "test in  \t| out(correct out)" << endl;
+	fout << "test in  \t| out(correct out)" << endl;
 	for (double in = 0; in < 10; in += 0.05) // 200 points
 	{
 		double correct_out = std::sin(in);
-		nn.set_in(encode(in));
-		nn.update_out();
-		vector<double> out = nn.get_out();
-		cout << "test " << in << "  \t| " << decode(out) << "(" << correct_out << ")" << endl;
+		vector<double> out = nn.test(vector<double>{in});
+		fout << "test " << in << "  \t| " << out[0] << "(" << correct_out << ")" << endl;
 	}
 
+	fout.close();
 	return 1;
 }
