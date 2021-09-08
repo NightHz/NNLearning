@@ -23,4 +23,15 @@
     <Text Include="in.txt" />
     <Text Include="out.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="neuron.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="neural_layer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="neural_network.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>
