@@ -9,6 +9,7 @@ public:
 	vector<Neuron*> in;
 	double (*activation)(double) = tanh;
 
+	static std::default_random_engine random_w_engine;
 	vector<double> w;
 	double threshold = 0;
 	double out = 0;
@@ -25,7 +26,6 @@ public:
 	Neuron() {}
 	//Neuron(std::initializer_list<Neuron*> il) : in(il) { init_w(); }
 
-	static std::default_random_engine random_w_engine;
 	void init_w()
 	{
 		static std::uniform_real_distribution<double> d(-1, 1);

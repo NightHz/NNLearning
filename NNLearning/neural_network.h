@@ -12,12 +12,12 @@ public:
 
 	NeuralNetwork(vector<int> vi, unsigned int seed = 68441468)
 	{
+		Neuron::random_w_engine.seed(seed);
 		layers.push_back(NeuralLayer(vi[0], nullptr));
 		for (size_t i = 1; i < vi.size(); i++)
 			layers.push_back(NeuralLayer(vi[i], &layers[i - 1]));
 		in_layer = &layers[0];
 		out_layer = &layers[layers.size() - 1];
-		Neuron::random_w_engine.seed(seed);
 	}
 	NeuralNetwork(std::initializer_list<int> il) : NeuralNetwork(vector<int>(il)) {}
 	NeuralNetwork(const NeuralNetwork&) = delete;
