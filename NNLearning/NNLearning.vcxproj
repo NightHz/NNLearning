@@ -144,6 +144,7 @@
   <ItemGroup>
     <Text Include="in.txt" />
     <Text Include="out.txt" />
+    <Text Include="nn.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="neural_layer.h" />

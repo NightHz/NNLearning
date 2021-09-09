@@ -35,6 +35,7 @@ int main()
 		cout << "current test error : " << nn.sum_error(test_ins, test_outs) << endl;
 		nn.training(0.03, data_ins, data_outs);
 	}
+	nn.serialize("nn.txt");
 	cout << "testing..." << endl;
 	fout << "test in  \t| out(correct out)" << endl;
 	for (double in = 0; in < 10; in += 0.05) // 200 points

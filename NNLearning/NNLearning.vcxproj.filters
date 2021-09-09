@@ -22,6 +22,7 @@
   <ItemGroup>
     <Text Include="in.txt" />
     <Text Include="out.txt" />
+    <Text Include="nn.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="neuron.h">

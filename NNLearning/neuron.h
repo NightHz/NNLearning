@@ -23,23 +23,23 @@ public:
 	static double tanh(double x) { return 1 - 2 / (std::exp(2 * x) + 1); }
 
 	Neuron() {}
-	Neuron(std::initializer_list<Neuron*> il) : in(il) { init_w(); }
+	//Neuron(std::initializer_list<Neuron*> il) : in(il) { init_w(); }
 
+	static std::default_random_engine random_w_engine;
 	void init_w()
 	{
-		static std::default_random_engine e(68441468);
 		static std::uniform_real_distribution<double> d(-1, 1);
 		w.clear();
 		for (int i = 0; i < in.size(); i++)
-			w.push_back(d(e));
-		threshold = d(e);
+			w.push_back(d(random_w_engine));
+		threshold = d(random_w_engine);
 
 		diff_error_in = vector<double>(in.size(), 0);
 		diff_error_w = vector<double>(in.size(), 0);
 		delta_w = vector<double>(in.size(), 0);
 		delta_threshold = 0;
 	}
-	void update_out()
+	void update_out() // update out
 	{
 		double x = 0;
 		for (size_t i = 0; i < in.size(); i++)
@@ -47,7 +47,7 @@ public:
 		x -= threshold;
 		out = activation(x);
 	}
-	void update_diff(double diff_error_out)
+	void update_diff(double diff_error_out) // update diff_*
 	{
 		double diff_error_x = 0;
 		if (activation == sigmoid)
@@ -67,13 +67,21 @@ public:
 			diff_error_in[i] = diff_error_x * w[i];
 		}
 	}
-	void bp(double learning_rate)
+	void bp(double learning_rate) // update delta_w and delta_threshold
 	{
 		delta_threshold += -learning_rate * diff_error_threshold;
 		for (size_t i = 0; i < in.size(); i++)
 			delta_w[i] += -learning_rate * diff_error_w[i];
 	}
-	void apply_new_w(double rate = 1.0)
+	void apply_new_w() // update w and threshold
+	{
+		threshold += delta_threshold;
+		delta_threshold = 0;
+		for (size_t i = 0; i < in.size(); i++)
+			w[i] += delta_w[i];
+		delta_w = vector<double>(in.size(), 0);
+	}
+	void apply_new_w(double rate) // update w and threshold
 	{
 		threshold += delta_threshold * rate;
 		delta_threshold = 0;
@@ -82,3 +90,4 @@ public:
 		delta_w = vector<double>(in.size(), 0);
 	}
 };
+std::default_random_engine Neuron::random_w_engine(68441468);

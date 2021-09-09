@@ -1,6 +1,8 @@
 #pragma once
 #include "neural_layer.h"
 #include <exception>
+#include <fstream>
+#include <iomanip>
 class NeuralNetwork
 {
 public:
@@ -8,24 +10,59 @@ public:
 	NeuralLayer* in_layer;
 	NeuralLayer* out_layer;
 
-	NeuralNetwork(vector<int> vi)
+	NeuralNetwork(vector<int> vi, unsigned int seed = 68441468)
 	{
 		layers.push_back(NeuralLayer(vi[0], nullptr));
 		for (size_t i = 1; i < vi.size(); i++)
 			layers.push_back(NeuralLayer(vi[i], &layers[i - 1]));
 		in_layer = &layers[0];
 		out_layer = &layers[layers.size() - 1];
+		Neuron::random_w_engine.seed(seed);
 	}
-	NeuralNetwork(std::initializer_list<int> il)
-	{
-		layers.push_back(NeuralLayer(*il.begin(), nullptr));
-		for (auto it = il.begin() + 1; it != il.end(); it++)
-			layers.push_back(NeuralLayer(*it, &layers[layers.size() - 1]));
-		in_layer = &layers[0];
-		out_layer = &layers[layers.size() - 1];
-	}
+	NeuralNetwork(std::initializer_list<int> il) : NeuralNetwork(vector<int>(il)) {}
 	NeuralNetwork(const NeuralNetwork&) = delete;
 	NeuralNetwork& operator=(const NeuralNetwork&) = delete;
+
+	void serialize(const char* filename)
+	{
+		std::ofstream sout;
+		sout.open(filename);
+		sout << std::setiosflags(std::ios::scientific) << std::setiosflags(std::ios::fixed);
+		// first line : the number of layers
+		sout << layers.size() << std::endl;
+		// second line : the number of neurons
+		for (size_t i = 0; i < layers.size(); i++)
+			sout << layers[i].neurons.size() << " ";
+		sout << std::endl;
+		// next line : layer number, neuron number, activation, threshold, each weight
+		for (size_t i = 1; i < layers.size(); i++)
+			for (size_t j = 0; j < layers[i].neurons.size(); j++)
+			{
+				sout << i << "\t" << j << "\t";
+				Neuron& n = layers[i].neurons[j];
+				if (n.activation == n.sigmoid)
+					sout << 1 << "\t";
+				else if (n.activation == n.tanh)
+					sout << 2 << "\t";
+				else
+					throw std::invalid_argument("unknown activation");
+				sout << n.threshold << "\t";
+				for (size_t k = 0; k < n.in.size(); k++)
+					sout << n.w[k] << "\t";
+				sout << std::endl;
+			}
+		sout.close();
+	}
+
+	// get info
+	vector<int> size()
+	{
+		vector<int> vi;
+		for (size_t i = 0; i < layers.size(); i++)
+			vi.push_back(static_cast<int>(layers[i].neurons.size()));
+	}
+	int size_input() { return static_cast<int>(in_layer->neurons.size()); }
+	int size_output() { return static_cast<int>(out_layer->neurons.size()); }
 
 	// basic operate
 	void set_in(vector<double> in)
@@ -133,7 +170,7 @@ public:
 			error += test_error(ins[i], correct_outs[i]);
 			bp(learning_rate, correct_outs[i]);
 		}
-		apply_learning();
+		apply_learning(1.0 / ins.size());
 		return error;
 	}
 };
