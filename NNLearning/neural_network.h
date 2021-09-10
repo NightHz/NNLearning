@@ -22,6 +22,12 @@ public:
 	NeuralNetwork(std::initializer_list<int> il) : NeuralNetwork(vector<int>(il)) {}
 	NeuralNetwork(const NeuralNetwork&) = delete;
 	NeuralNetwork& operator=(const NeuralNetwork&) = delete;
+	NeuralNetwork(NeuralNetwork&& nn)  noexcept : layers(std::move(nn.layers))
+	{
+		in_layer = &layers[0];
+		out_layer = &layers[layers.size() - 1];
+	}
+	NeuralNetwork& operator=(NeuralNetwork&&) = delete;
 
 	void serialize(const char* filename)
 	{
@@ -52,6 +58,61 @@ public:
 				sout << std::endl;
 			}
 		sout.close();
+	}
+	static NeuralNetwork deserialize(const char* filename)
+	{
+		std::ifstream sin;
+		sin.open(filename);
+		if(!sin.good())
+			throw std::invalid_argument("open file fail");
+		sin >> std::setiosflags(std::ios::scientific) >> std::setiosflags(std::ios::fixed);
+		int i1, i2, i3, i4, i5;
+		double d1, d2;
+		// first line : the number of layers
+		if(!(sin >> i1))
+			throw std::invalid_argument("read file fail");
+		// second line : the number of neurons
+		vector<int> vi;
+		for (size_t i = 0; i < i1; i++)
+		{
+			sin >> i2;
+			vi.push_back(i2);
+		}
+		NeuralNetwork nn(vi);
+		// next line : layer number, neuron number, activation, threshold, each weight
+		while (sin >> i3)
+		{
+			sin >> i4 >> i5;
+			Neuron& n = nn.layers[i3].neurons[i4];
+			if (i5 == 1)
+				n.activation = n.sigmoid;
+			else if (i5 == 2)
+				n.activation = n.tanh;
+			else
+				throw std::invalid_argument("unknown activation in deserialize");
+			sin >> d1;
+			n.threshold = d1;
+			for (size_t k = 0; k < n.in.size(); k++)
+			{
+				sin >> d2;
+				n.w[k] = d2;
+			}
+		}
+		sin.close();
+		return nn;
+	}
+	static NeuralNetwork try_deserialize(const char* filename, vector<int> vi, unsigned int seed = 68441468)
+	{
+		try
+		{
+			NeuralNetwork nn(deserialize(filename));
+			return nn;
+		}
+		catch (std::invalid_argument&)
+		{
+			NeuralNetwork nn(vi, seed);
+			return nn;
+		}
 	}
 
 	// get info
