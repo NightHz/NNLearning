@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <thread>
 #include "neural_network.h"
 
 using std::cin;
@@ -26,13 +27,31 @@ int main()
 	cout << "NN..." << endl;
 	NeuralNetwork nn(NeuralNetwork::deserialize("nn.txt"));
 	//NeuralNetwork nn{ 1,8,8,1 };
-	cout << "learning..." << endl;
-	for (int i = 0; i < 10000; i++) // loop
+
+	cout << "press any key to start learning or stop learning" << endl;
+	cin.ignore();
+	bool stop_training_func = false;
+	int training_times;
+	auto training_func = [&stop_training_func,&training_times, &nn, &data_ins, &data_outs, &test_ins, &test_outs]()
 	{
-		cout << "current data error : " << nn.sum_error(data_ins, data_outs) << "\t";
-		cout << "current test error : " << nn.sum_error(test_ins, test_outs) << endl;
-		nn.training(0.03, data_ins, data_outs);
-	}
+		training_times = 0;
+		while (!stop_training_func) // loop
+		{
+			cout << "current data error : " << nn.sum_error(data_ins, data_outs) << "\t";
+			cout << "current test error : " << nn.sum_error(test_ins, test_outs) << endl;
+			nn.training(0.03, data_ins, data_outs);
+			training_times++;
+		}
+	};
+	std::thread training_thread(training_func);
+	cout << "learning..." << endl;
+	training_thread.detach();
+	cin.ignore();
+	stop_training_func = true;
+	while (training_thread.joinable())
+		;
+	cout.flush();
+	cout << "training " << training_times << " times" << endl;
 
 	cout << "serialize NN and test NN?(y/n)" << endl;
 	while (true)
@@ -59,5 +78,5 @@ int main()
 	}
 	fout.close();
 
-	return 1;
+	return 0;
 }
