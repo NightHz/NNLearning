@@ -39,18 +39,15 @@ int main()
 		{
 			cout << "current data error : " << nn.sum_error(data_ins, data_outs) << "\t";
 			cout << "current test error : " << nn.sum_error(test_ins, test_outs) << endl;
-			nn.training(0.03, data_ins, data_outs);
+			nn.training_accumulate(0.03, data_ins, data_outs);
 			training_times++;
 		}
 	};
-	std::thread training_thread(training_func);
 	cout << "learning..." << endl;
-	training_thread.detach();
+	std::thread training_thread(training_func);
 	cin.ignore();
 	stop_training_func = true;
-	while (training_thread.joinable())
-		;
-	cout.flush();
+	training_thread.join();
 	cout << "training " << training_times << " times" << endl;
 
 	cout << "serialize NN and test NN?(y/n)" << endl;
