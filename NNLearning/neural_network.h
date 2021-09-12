@@ -121,6 +121,7 @@ public:
 		vector<int> vi;
 		for (size_t i = 0; i < layers.size(); i++)
 			vi.push_back(static_cast<int>(layers[i].neurons.size()));
+		return vi;
 	}
 	int size_input() { return static_cast<int>(in_layer->neurons.size()); }
 	int size_output() { return static_cast<int>(out_layer->neurons.size()); }
